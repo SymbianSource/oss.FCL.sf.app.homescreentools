@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!DOCTYPE SystemDefinition SYSTEM "sysdef_1_4_0.dtd" [
+  <!ENTITY layer_real_source_path "sf/app/homescreentools" >
+]>
+
+<SystemDefinition name="homescreentools" schema="1.4.0">
+  <systemModel>
+    <layer name="bldmefirst_layer">
+      <module name="homescreentoolsdtd">
+        <unit unitID="hsdo.dtdinstaller" mrp="" bldFile="&layer_real_source_path;/dtdinstaller/group" name="dtdinstaller" />
+      </module>
+    </layer>
+    <layer name="app_layer">
+      <module name="homescreentools">
+        <unit unitID="hsdo.themeinstaller" mrp="" bldFile="&layer_real_source_path;/themeinstaller/group" name="themeinstaller" />
+        <unit unitID="hsdo.widgettools" mrp="" bldFile="&layer_real_source_path;/widgettools/group" name="widgettools" />
+      </module>
+    </layer>
+  </systemModel>
+</SystemDefinition>
