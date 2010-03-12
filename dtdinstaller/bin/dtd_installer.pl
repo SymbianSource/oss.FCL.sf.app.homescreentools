@@ -326,7 +326,7 @@ sub copy_files {
 		    	if ((lc $2) eq "sources") {
 		    		$out_file = "${out_path}\\$3";
 		    	} else {
-		    		if (length($temp) > 4) { #skip extra files
+		    		if (length($temp) > 5) { #skip extra files
 		    			next;
 		    		}
             while (length($temp) < 4){ $temp = "0".$temp; }
