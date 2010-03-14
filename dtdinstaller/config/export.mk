@@ -15,7 +15,7 @@
 #
 # dtdinstaller's actual configuration export makefile
 
-MAKEFILE =	/sf/tools/homescreentools/dtdinstaller/config/export.mk
+MAKEFILE =	/sf/app/homescreentools/dtdinstaller/config/export.mk
 $(call push,MAKEFILE_STACK,$(MAKEFILE))
 
 DTDINSTALLERFILES =	$(MAKEFILEDIR)../bin/dtd_installer.pl													/epoc32/tools/ \

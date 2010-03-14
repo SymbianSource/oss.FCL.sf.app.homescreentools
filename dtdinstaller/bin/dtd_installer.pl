@@ -324,7 +324,7 @@ sub copy_files {
 		    	my $temp=$1; # lang code	
 		    	my $temp2=$3;	# file name
 		    	if ((lc $2) eq "sources") {
-		    		$out_file = "${out_path}\\$2\\$3";
+		    		$out_file = "${out_path}\\$3";
 		    	} else {
 		    		if (length($temp) > 4) { #skip extra files
 		    			next;
@@ -457,7 +457,7 @@ sub getFiles {
 	$file_name =~ s/\//\\/g;    #Change / marks to \
 	chomp $file_name;
 	next if ( -d $file_name ); # Skip directories
-	next if ((!($file_name =~ /o0000/i)) && (!($file_name =~ /\/sources\//i))); # Skip other then resource and source files
+	next if ((!($file_name =~ /o0000/i)) && (!($file_name =~ /\\sources\\/i))); # Skip other then resource and source files
 	push @find_files, $file_name;
 }
 
