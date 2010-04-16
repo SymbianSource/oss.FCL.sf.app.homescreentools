@@ -5,16 +5,17 @@
 
 <SystemDefinition name="homescreentools" schema="1.4.0">
   <systemModel>
+
     <layer name="bldmefirst_layer">
       <module name="homescreentoolsdtd">
-        <unit unitID="hsdo.dtdinstaller" mrp="" bldFile="&layer_real_source_path;/dtdinstaller/group" name="dtdinstaller" />
+        <unit unitID="hs.homescreentoolsdtd" mrp="" bldFile="&layer_real_source_path;/dtdinstaller/group" name="homescreentoolsdtd" />
       </module>
     </layer>
     <layer name="app_layer">
       <module name="homescreentools">
-        <unit unitID="hsdo.themeinstaller" mrp="" bldFile="&layer_real_source_path;/themeinstaller/group" name="themeinstaller" />
-        <unit unitID="hsdo.widgettools" mrp="" bldFile="&layer_real_source_path;/widgettools/group" name="widgettools" />
+        <unit unitID="hs.homescreentools" mrp="" bldFile="&layer_real_source_path;/group" name="homescreentools" />
       </module>
     </layer>
+
   </systemModel>
 </SystemDefinition>
