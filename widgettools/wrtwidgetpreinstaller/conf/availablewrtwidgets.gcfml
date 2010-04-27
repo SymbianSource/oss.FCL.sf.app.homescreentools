@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <container xmlns="http://www.symbianfoundation.org/xml/implml/1">
 <tag name="target" value="uda"/>
+<tag name="target" value="emmc"/>
 <outputSubDir value="widget"/> 
 <file xmlns="http://www.s60.com/xml/genconfml/1" name="widget_config.ini">
 	<setting ref="WrtWidgetsC/WrtWidgetC"/>
@@ -13,14 +14,13 @@
 			 <xsl:if test="PreInstalled = 1">
 				<xsl:value-of select="path" />
 				<xsl:text>&#x20;</xsl:text>
-				<!--xsl:value-of select="Uid"/-->
-				<!--xsl:text>&#x20;</xsl:text-->
 				<xsl:value-of select="homescreen"/> 
+				<xsl:text>&#x20;</xsl:text>
+				<xsl:value-of select="Uid"/>
 				<xsl:text>&#xA;</xsl:text>
 			 </xsl:if>
 			</xsl:for-each>	  
 		</xsl:template>
 	</xsl:stylesheet>
 </file>
-
 </container>
