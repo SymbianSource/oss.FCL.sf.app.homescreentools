@@ -18,7 +18,7 @@
 
 
 PRJ_EXPORTS
-:zip ../bin/widgetpreinstaller_v_2_4_3.zip
+:zip ../bin/widgetpreinstaller_v_2_4_4.zip
 
 //../conf/availablewrtwidgets.confml   APP_LAYER_CONFML(availablewrtwidgets.confml,uda_content)
 //../conf/availablewrtwidgets.gcfml    APP_LAYER_GCFML(availablewrtwidgets.gcfml,uda_content)
