@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<accesspolicy>
+
+  <!-- Don't allow any access from unknown untrusted content -->
+  <domain name="UntrustedWebsites">
+    <capability name="Network" />
+  </domain>
+
+  <!-- Trusted web pages are able to access the network.
+     They also can list installed applications and launch
+     them via the application management API.
+  -->
+  <domain name="TrustedWebsites">
+    <capability name="Network"/>
+    <capability name="ApplicationManagement.Launch"/>  <!-- List&launch apps -->
+  </domain>
+  
+  <!-- Untrusted widgets are not supported in CP1.0 and
+       therefore don't get access to any API.
+  -->
+  <domain name="UntrustedWidgets">
+  </domain>
+  <!-- Trusted widgets get access to all service providers -->
+  <domain name="TrustedWidgets">
+    <capability name="ApplicationManagement"/>  <!-- App mgnt -->
+    <capability name="ApplicationManagement.Launch"/>  <!-- List&launch apps -->
+    <capability name="DeviceConfiguration"/>  <!-- Dev. conf. -->
+    <capability name="Download"/>  <!-- CWRT and S downloader -->
+    <capability name="EventsAndMessaging"/> <!-- E&M API -->
+    <capability name="LocalConnectivity"/>  <!-- BT, USB -->
+    <capability name="NativeUpdate"/>  <!-- Native updater -->
+    <capability name="Network"/>  <!--  Network traffic -->
+    <capability name="ConnectionManagement"/>  <!-- Conn mgnt -->
+    <capability name="NokiaAccount"/>  <!-- Nokia Account -->
+    <capability name="OviMessagingBus"/>  <!-- Ovi Msg. Bus -->
+    <capability name="RuntimeInfo"/>  <!-- Runtime info -->
+    <capability name="SecureStorage"/>  <!-- Secure storage -->
+    <capability name="Vibra"/>  <!-- Vibra in Sys Info CJSE -->
+    <capability name="WebAppUpdate"/> <!-- Web app update -->
+    <capability name="Cryptographic"/> <!-- Cryptographic -->
+    <capability name="NokiaAdEnabler"/> <!-- Nokia Ad Enabler -->
+	
+	<!-- New device caps changes for CJSE service providers-->
+	<capability name="pim.*"/>  <!-- Contacts and Calendar CJSE -->
+	<capability name="devicestatus.*"/>  <!-- Sysinfo CJSE -->
+	<capability name="message.*"/> <!-- Messaging CJSE -->
+	<capability name="sensor.*"/> <!-- Sensors CJSE -->
+	<capability name="landmark.*"/> <!-- Landmarks CJSE -->
+	<capability name="camera.*"/> <!-- Camera CJSE -->
+	<capability name="commlog.*"/> <!-- Loggine CJSE -->
+	<capability name="media.*"/> <!-- Media CJSE -->
+	<capability name="io.file.*"/> <!-- Filesystem CJSE -->
+	<capability name="player.*"/> <!-- Audio and Video player CJSE -->
+	<capability name="location.position"/> <!-- Location CJSE -->
+	<capability name="telephony.voicecall"/> <!-- Telephony CJSE -->
+  </domain>
+  
+  <domain name="Operator">
+  <capability name="ApplicationManagement.Launch"/>  <!-- APPManager CJSE -->
+ 	<capability name="pim.*"/>  <!-- Contacts and Calendar CJSE -->
+	<capability name="devicestatus.*"/>  <!-- Sysinfo CJSE -->
+	<capability name="message.*"/> <!-- Messaging CJSE -->
+	<capability name="sensor.*"/> <!-- Sensors CJSE -->
+	<capability name="camera.*"/> <!-- Camera CJSE -->
+	<capability name="commlog.*"/> <!-- Logging CJSE -->
+	<capability name="media.*"/> <!-- Media CJSE -->
+	<capability name="io.file.read"/> <!-- Filesystem CJSE -->
+	<capability name="player.audio.*"/> <!-- Audio and Video player CJSE -->
+	<capability name="location.position"/> <!-- Location CJSE -->
+	<capability name="telephony.voicecall"/> <!-- Telephony CJSE -->
+  </domain>
+
+</accesspolicy>

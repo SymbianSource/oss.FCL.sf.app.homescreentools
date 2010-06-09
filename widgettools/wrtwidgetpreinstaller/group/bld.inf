@@ -18,7 +18,20 @@
 
 
 PRJ_EXPORTS
-:zip ../bin/widgetpreinstaller_v_2_4_7.zip
 
-//../conf/availablewrtwidgets.confml   APP_LAYER_CONFML(availablewrtwidgets.confml,uda_content)
-//../conf/availablewrtwidgets.gcfml    APP_LAYER_GCFML(availablewrtwidgets.gcfml,uda_content)
+../src/browser_access_policy.xml	/epoc32/tools/widget_tools/widgetpreinstaller/browser_access_policy.xml
+../src/CWRTWebAppRegistry.exe	/epoc32/tools/widget_tools/widgetpreinstaller/CWRTWebAppRegistry.exe
+../src/CWRTWebAppRegistry.intermediate.manifest	/epoc32/tools/widget_tools/widgetpreinstaller/CWRTWebAppRegistry.intermediate.manifest
+../src/default_widget_icon.png	/epoc32/tools/widget_tools/widgetpreinstaller/default_widget_icon.png
+../src/installwidgets.pl	/epoc32/tools/widget_tools/widgetpreinstaller/installwidgets.pl
+../src/Microsoft.VC80.CRT.manifest	/epoc32/tools/widget_tools/widgetpreinstaller/Microsoft.VC80.CRT.manifest
+../src/msvcp80.dll	/epoc32/tools/widget_tools/widgetpreinstaller/msvcp80.dll
+../src/msvcr80.dll	/epoc32/tools/widget_tools/widgetpreinstaller/msvcr80.dll
+../src/png2mbm.exe	/epoc32/tools/widget_tools/widgetpreinstaller/png2mbm.exe
+../src/QtCore4.dll	/epoc32/tools/widget_tools/widgetpreinstaller/QtCore4.dll
+../src/QtSql4.dll	/epoc32/tools/widget_tools/widgetpreinstaller/QtSql4.dll
+../src/widgetregfiles.exe	/epoc32/tools/widget_tools/widgetpreinstaller/widgetregfiles.exe
+../src/Widget_lproj.xml	/epoc32/tools/widget_tools/widgetpreinstaller/Widget_lproj.xml
+../src/sqldrivers/qsqlite4.dll	/epoc32/tools/widget_tools/widgetpreinstaller/sqldrivers/qsqlite4.dll
+../src/sqldrivers/qsqlodbc4.dll	/epoc32/tools/widget_tools/widgetpreinstaller/sqldrivers/qsqlodbc4.dll
+

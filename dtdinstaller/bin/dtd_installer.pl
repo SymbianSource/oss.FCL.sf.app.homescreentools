@@ -17,10 +17,22 @@
 #
 
 use strict;
+use FindBin;        # for FindBin::Bin
+my $PerlLibPath;    # fully qualified pathname of the directory containing our Perl modules
 
-#Tools path
-use constant LIBPATH => '/epoc32/tools';
-use lib  LIBPATH;
+BEGIN {
+# check user has a version of perl that will cope
+	require 5.005_03;
+# establish the path to the Perl libraries: currently the same directory as this script
+	$PerlLibPath = $FindBin::Bin;	# X:/epoc32/tools
+# do not convert slashes for linux
+	if ($^O eq "MSWin32") {
+		$PerlLibPath =~ s/\//\\/g;	# X:\epoc32\tools
+		$PerlLibPath .= "\\";
+	}
+}
+
+use lib $PerlLibPath;
 
 use Cwd;
 use Getopt::Long;
@@ -59,9 +71,29 @@ USAGE
 my ($dtd_name, $dtd_type, $dtd_location, $sub_folder_name, $output_location, $action_type, $force_create, $debug, $what_output_file);
 my (@all_dirs, @find_files, @files_to_convert);
 my @sub_folders=("xuikon","hsps");
-my @layers=("\\epoc32\\include\\domain\\osextensions\\loc", "\\epoc32\\include\\domain\\middleware\\loc", "\\epoc32\\include\\domain\\applications\\loc", "\\epoc32\\include\\platform\\loc", "\\epoc32\\include\\platform\\mw\\loc", "\\epoc32\\include\\platform\\app\\loc");
-my $themeinstaller_tool = "\\epoc32\\tools\\themeinstaller\\themeinstaller.bat";
-my $themeinstaller_property_file = "\\epoc32\\tools\\themeinstaller\\data\\widgetinstaller.prop";
+
+my $EPOCROOT = $ENV{EPOCROOT};
+$EPOCROOT =~ s#[/\\]*$##;
+
+my $PATHSEP='/';
+if ($^O eq "MSWin32" ) {
+	$PATHSEP='\\';
+}
+
+my @layers=(
+$EPOCROOT . "${PATHSEP}epoc32${PATHSEP}include${PATHSEP}domain${PATHSEP}osextensions${PATHSEP}loc", 
+$EPOCROOT . "${PATHSEP}epoc32${PATHSEP}include${PATHSEP}domain${PATHSEP}middleware${PATHSEP}loc",
+$EPOCROOT . "${PATHSEP}epoc32${PATHSEP}include${PATHSEP}domain${PATHSEP}applications${PATHSEP}loc",
+$EPOCROOT . "${PATHSEP}epoc32${PATHSEP}include${PATHSEP}platform${PATHSEP}loc",
+$EPOCROOT . "${PATHSEP}epoc32${PATHSEP}include${PATHSEP}platform${PATHSEP}mw${PATHSEP}loc",
+$EPOCROOT . "${PATHSEP}epoc32${PATHSEP}include${PATHSEP}platform${PATHSEP}app${PATHSEP}loc");
+
+my $themeinstaller_tool = $EPOCROOT  . "${PATHSEP}epoc32${PATHSEP}tools${PATHSEP}themeinstaller${PATHSEP}themeinstaller";
+if ($^O eq "MSWin32" ) {
+  $themeinstaller_tool = $themeinstaller_tool . ".bat";
+}
+
+my $themeinstaller_property_file = $EPOCROOT  . "${PATHSEP}epoc32${PATHSEP}tools${PATHSEP}themeinstaller${PATHSEP}data${PATHSEP}widgetinstaller.prop";
 
 # Set this to 1 if you need to debug the script
 # $debug = 1;
@@ -294,8 +326,16 @@ sub check_options {
 	$output_location =~ s/\//\\/g;    #Change / marks to \
 	$what_output_file = $output_location;
 	$what_output_file =~ s/\\/_/g; #Change \ marks to _
-	$what_output_file = "\\epoc32\\build\\dtd_installer\\" . $what_output_file . $dtd_name . ".txt";
-	if ( !-d "/epoc32/build/dtd_installer") { mkdir("/epoc32/build/dtd_installer"); }
+	$what_output_file =~ s/:/_/g; #Change : marks to _
+	if ($ENV{SBS_BUILD_DIR}) { 
+		$what_output_file = $ENV{SBS_BUILD_DIR} . "${PATHSEP}dtd_installer${PATHSEP}" . $what_output_file . $dtd_name . ".txt";
+		if ( !-d $ENV{SBS_BUILD_DIR} . "${PATHSEP}dtd_installer") { mkdir($ENV{SBS_BUILD_DIR} . "${PATHSEP}dtd_installer"); }		
+	}
+	else {
+		$what_output_file = $EPOCROOT . "${PATHSEP}epoc32${PATHSEP}build${PATHSEP}dtd_installer${PATHSEP}" . $what_output_file . $dtd_name . ".txt";    
+		if ( !-d "/epoc32/build/dtd_installer") { mkdir("/epoc32/build/dtd_installer"); }
+	}
+	
 	if ($debug) { print "Output what file: $what_output_file\n"; }
 }
 
