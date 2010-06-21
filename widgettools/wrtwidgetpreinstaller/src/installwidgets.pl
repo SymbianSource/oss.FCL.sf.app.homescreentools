@@ -1327,7 +1327,7 @@ sub parseConfXml
     if($attributeMap)
     {      
         $plisthash->{'AttributeList'} = $attributeMap;
-        print "\n AttributeList::$plisthash->{'AttributeList'}\n"
+        print "\nAttributeList::$plisthash->{'AttributeList'}\n"
     }
 
   # Return result
@@ -1447,6 +1447,7 @@ sub parseConfXml
         {
             print " \n\n ^^^^^^^^^^^^^^^^^^^^^^^NOKIA:sharedlibrary ^^^^^^^^^^^^^^^^^^^^ \n\n";
             $isSharedLibrary = 1;
+            $plisthash->{'WidgetPackagingFormat'} = "shared-library";
             $attributeMap = $attributeMap.WIDGET_NOKIA_SHAREDLIB.KEY_VALUE_SEPERATOR.KEY_VALUE_PAIR_SEPERATOR;
         }
      $val = '';    
