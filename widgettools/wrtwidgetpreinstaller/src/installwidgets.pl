@@ -21,7 +21,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 # Version of the script - just use the date
-$main::VERSION = '22-June-2010';
+$main::VERSION = '16-August-2010';
 
 # New getopt::long provides this - but old version doesn't?
 sub version
@@ -105,6 +105,7 @@ use constant WIDGET_UI_UID => 0x10282822;   # UID of the widget app
 use constant CWRT_WIDGET_UI_UID => 0x200267C0;    # UID of the cwrt widget app
 use constant SWIDGET_UI_UID => 0x102829A0;	# UID of the securewidget app
 use constant CWRT_WIDGET_UI_NON_NOKIA_UID => 0x200267D6;    # UID of the cwrt widget app
+use constant JIL_NS => 'http://www.jil.org/ns/widgets1.2';
 
 # Folder paths
 use constant DESTINATION => 'private/10003a3f/import/apps/NonNative/Resource';
@@ -413,7 +414,7 @@ sub installFiles
   # Unregister any existing widgets as otherwise when the registry is rewritten their icons will appear in the emulator but they won't work
   $self->unregisterWidgets($drive);
 
-  print "\n			INSTALLING FILES FOR DRIVE $drive				\n"; 
+  print "\n     INSTALLING FILES FOR DRIVE $drive       \n";
   # Process each widget in turn
   my ( @installedProps );
   my ( @installedCWRTProps );
@@ -446,14 +447,14 @@ sub installFiles
     die "No files extracted from $filename" if !@$extracted;
     
     if ($self->{'operator'}{lc $filename})
-		{
-    	print "\n NON NOKIA WGT \n";
-    	$non_nokia_widget = 1;
+    {
+      print "\nNON NOKIA WGT \n";
+      $non_nokia_widget = 1;
     }
     else
     {
-    	print "\n NOKIA WGT \n";
-    	$non_nokia_widget = 0;
+      print "\nNOKIA WGT \n";
+      $non_nokia_widget = 0;
     }
     
     
@@ -467,8 +468,8 @@ sub installFiles
       }
     elsif (($filename =~ /.wgt/ ) && ( my $confxml = catfile($tempdir, $root, 'config.xml')))
       {
-        print (" W3C widget \n"); 
-      
+        print ("W3C widget \n");
+
           # Parse the XML file into a hash
             $widgetdata = parseConfXml($confxml,$self->{'args'}->{'l10n'});
             $w3c_widget = 1;
@@ -485,7 +486,7 @@ sub installFiles
 	  }
 
     if( $w3c_widget )
-      { 
+    { 
       if( $widgetdata->{'MainHTML'} )
         {
         $startsrc = $widgetdata->{'MainHTML'};
@@ -513,7 +514,7 @@ sub installFiles
       	}
       
       $widgetdata->{'MimeType'} = "application/widget";
-      }         
+    }         
 
     print "Identifier: $widgetdata->{'BundleIdentifier'}\n" if $self->{args}->{'verbose'};
     
@@ -809,7 +810,7 @@ sub installFiles
   $self->addToRomList($drive, $self->makeRegistry($drive, \@installedCWRTProps, 1));
     
 
-  print "\n\n %%%%%          WIDGET PRE-INSTALLATION completed for Drive $drive          %%%%% \n\n";
+  print "\n\n%%%%%          WIDGET PRE-INSTALLATION completed for Drive $drive          %%%%% \n\n";
   }
 
 sub un7zipWidget
@@ -983,6 +984,8 @@ sub findCmd
 # Make INI file describing widget - this is passed to widgetregfiles.exe
 sub makeIni
   {
+  my $hidden = 0;
+  if ($isSharedWidget && !$isSharedIcon) {$hidden = 1;}
   my ( $self, $data, $file ) = @_;
   open INI, ">$file" or die "Failed to open $file for writing: $!";
   binmode INI, ":utf8" if $] >= 5.008;
@@ -996,6 +999,7 @@ sub makeIni
   print INI "caption=$data->{'BundleDisplayName'}\n";
   print INI "drive_name=$data->{'DriveName'}\n";
   print INI "results_dir=$dir\n";
+  print INI "hidden=$hidden\n";
   
   if( $w3c_widget )
   {
@@ -1340,6 +1344,11 @@ sub parseConfXml
     
     if($el eq "widget")
         {
+         my $jilFeature = JIL_NS;
+         if( lc($atts{"xmlns:JIL"})=~ m/$jilFeature/i || lc($atts{"xmlns:jil"})=~ m/$jilFeature/i)
+         {
+           $plisthash->{'WidgetPackagingFormat'} = "jil";
+         }
          if ( $atts{"id"} )
              {
             $plisthash->{'BundleIdentifier'} = $atts{"id"};
@@ -1392,7 +1401,7 @@ sub parseConfXml
            
            if ( $atts{"name"} )
              {
-              $attributeMap = $attributeMap.$featureMap. KEY_ATTR_SEPERATOR."name".KEY_VALUE_SEPERATOR.$atts{"name"}.KEY_VALUE_PAIR_SEPERATOR;
+              $attributeMap = $attributeMap.$featureMap.KEY_ATTR_SEPERATOR."name".KEY_VALUE_SEPERATOR.$atts{"name"}.KEY_VALUE_PAIR_SEPERATOR;
               my $jilFeature = "http://jil.org/jil";
               if($atts{"name"}=~ m/^$jilFeature/i)
               {
@@ -1407,7 +1416,7 @@ sub parseConfXml
        elsif($el eq "param")
           {
               $featureParamMap = $featureMap. WIDGET_FEATURE_PARAM . $paramCount;
-              $attributeMap = $attributeMap.$featureParamMap. KEY_VALUE_SEPERATOR.KEY_VALUE_PAIR_SEPERATOR;
+              $attributeMap = $attributeMap.$featureParamMap.KEY_VALUE_SEPERATOR.KEY_VALUE_PAIR_SEPERATOR;
               if ($atts{"name"}) 
               {
                   $attributeMap = $attributeMap.$featureParamMap.KEY_ATTR_SEPERATOR."name".KEY_VALUE_SEPERATOR.$atts{"name"}.KEY_VALUE_PAIR_SEPERATOR;
@@ -1417,26 +1426,26 @@ sub parseConfXml
                   $attributeMap = $attributeMap.$featureParamMap.KEY_ATTR_SEPERATOR."value".KEY_VALUE_SEPERATOR.$atts{"value"}.KEY_VALUE_PAIR_SEPERATOR;
               }
           }
-       elsif ($el eq "access" || $el eq "jil:access")
+       elsif ($el eq "access" || $el eq "jil:access" || $el eq "JIL:access")
           {
               $accessMap = WIDGET_ACCESS . $accessCount;
               $attributeMap = $attributeMap.$accessMap.KEY_VALUE_SEPERATOR.KEY_VALUE_PAIR_SEPERATOR;
            
               if ( $atts{"network"} )
              {
-                $attributeMap = $attributeMap.$accessMap. KEY_ATTR_SEPERATOR."network".KEY_VALUE_SEPERATOR.$atts{"network"}.KEY_VALUE_PAIR_SEPERATOR;
+                $attributeMap = $attributeMap.$accessMap.KEY_ATTR_SEPERATOR."network".KEY_VALUE_SEPERATOR.$atts{"network"}.KEY_VALUE_PAIR_SEPERATOR;
              }
             if ( $atts{"remotescripts"} )
              {
-                $attributeMap = $attributeMap.$accessMap. KEY_ATTR_SEPERATOR."remotescripts".KEY_VALUE_SEPERATOR.$atts{"remotescripts"}.KEY_VALUE_PAIR_SEPERATOR;
+                $attributeMap = $attributeMap.$accessMap.KEY_ATTR_SEPERATOR."remotescripts".KEY_VALUE_SEPERATOR.$atts{"remotescripts"}.KEY_VALUE_PAIR_SEPERATOR;
              }
              if ( $atts{"localfs"} )
              {
-                $attributeMap = $attributeMap.$accessMap. KEY_ATTR_SEPERATOR."localfs".KEY_VALUE_SEPERATOR.$atts{"localfs"}.KEY_VALUE_PAIR_SEPERATOR;
+                $attributeMap = $attributeMap.$accessMap.KEY_ATTR_SEPERATOR."localfs".KEY_VALUE_SEPERATOR.$atts{"localfs"}.KEY_VALUE_PAIR_SEPERATOR;
              }
              if ( $atts{"origin"} )
              {
-                $attributeMap = $attributeMap.$accessMap. KEY_ATTR_SEPERATOR."origin".KEY_VALUE_SEPERATOR.$atts{"origin"}.KEY_VALUE_PAIR_SEPERATOR;
+                $attributeMap = $attributeMap.$accessMap.KEY_ATTR_SEPERATOR."origin".KEY_VALUE_SEPERATOR.$atts{"origin"}.KEY_VALUE_PAIR_SEPERATOR;
              }
              if ( $atts{"subdomains"} )
              {
@@ -1513,6 +1522,7 @@ sub docC{}
             if( lc($val) eq "true" )
             {
                 $isSharedWidget = 1;
+                $plisthash->{'WidgetPackagingFormat'} = "w3c-partial-v1";
             }
             $attributeMap = $attributeMap.WIDGET_NOKIA_SHAREDLIB_WIDGET.KEY_VALUE_SEPERATOR.$val.KEY_VALUE_PAIR_SEPERATOR;
         }
@@ -1585,8 +1595,8 @@ sub unregisterWidgets
   # This should avoid problems with unregistered widget icons in the emulator?
     if (-e $registry)
     {
-        print("\n			UNREGISTERING WGZ WIDGETS       \n");
-        
+        print("\n     UNREGISTERING WGZ WIDGETS       \n");
+
       my $ref = XMLin($registry, 'forcearray' => [ 'entry' ], 'keyattr' => { 'prop' => 'content' } );
     foreach my $entry ( @{ $ref->{entry} } )
       {
@@ -1612,8 +1622,8 @@ sub unregisterWidgets
   # This should avoid problems with unregistered widget icons in the emulator?
   if (-e $registry)
     {
-        print("\n			UNREGISTERING WGT WIDGETS       \n");
-        
+        print("\n     UNREGISTERING WGT WIDGETS       \n");
+
           my $ref = XMLin($registry, 'forcearray' => [ 'entry' ], 'keyattr' => { 'prop' => 'content' } );
         foreach my $entry ( @{ $ref->{entry} } )
       {
@@ -1627,7 +1637,7 @@ sub unregisterWidgets
        
           # We also have to delete the widget directory otherwise it'll be re-registered
           my $id = $entry->{prop}->{BundleIdentifier}->{val}->{content};
-          print " Unregistering $id ";
+          print "Unregistering $id\n";
           my $basepath = $entry->{prop}->{BasePath}->{val}->{content};
           $w3c_widget = 1;
           my $sharedLib = "lib";          #BasePath will have lib only if the widget is shared Library
@@ -1643,11 +1653,9 @@ sub unregisterWidgets
           }
            #sharedFolderName TBD
           my $dir = $self->installDir($drive, $id);
-                rmtree $dir;
-                
-          print("BasePath:$basepath \nIs Non-Nokia? $non_nokia_widget		Is SharedLibrary? $isSharedLibrary \nDirectory:$dir \n");
-    
-            $dir =~ s/widgets_21D_4C7/data/;
+          rmtree $dir;
+
+          $dir =~ s/widgets_21D_4C7/data/;
           rmtree $dir;
         }
     }
@@ -1790,7 +1798,6 @@ sub dumpPList
     }
     }
   print $fh "</entry>\n";
-  print "\n Is a w3c widget? -- $w3c\n";
   if( $w3c )
     {
   my $dbPath = fixFilename(catfile($self->destLocation('C'), CWRT_WEBAPP_REGISTRY));
@@ -1800,12 +1807,12 @@ sub dumpPList
     
     if($encodeddata->{'AttributeList'})
     {
-        print "\n AttributeList argument sent to DB\n";
+        print "\nAttributeList argument sent to DB\n";
         $regCmd = "$cmd $dbPath $encodeddata->{'BundleIdentifier'} $encodeddata->{'Uid'} $encodeddata->{'BundleDisplayName'} $encodeddata->{'BasePath'} $encodeddata->{'DBIconPath'} $encodeddata->{'WidgetPackagingFormat'} $encodeddata->{'MainHTML'} $encodeddata->{'AttributeList'}";
     }
     else
    {
-        print "\n AttributeList argument not sent to DB\n";
+        print "\nAttributeList argument not sent to DB\n";
         $regCmd = "$cmd $dbPath $encodeddata->{'BundleIdentifier'} $encodeddata->{'Uid'} $encodeddata->{'BundleDisplayName'} $encodeddata->{'BasePath'} $encodeddata->{'DBIconPath'} $encodeddata->{'WidgetPackagingFormat'} $encodeddata->{'MainHTML'}";
     }
     print "\n regCmd : $regCmd \n\n";
@@ -2096,15 +2103,17 @@ Drop the file under X:\variants\content\private\10282f06\WidgetEntryStore.xml
 
 Run the foll command to generate UDA
 
-B<product1:>
-X:\epoc32\tools>imaker -f /epoc32/rom/s60_makefiles/image_conf_sp_rnd_product1.mk VARIANT_DIR=/variants variantuda
+B<Gadget:>
+X:\epoc32\tools>imaker -f /epoc32/rom/s60_makefiles/image_conf_sp_rnd_gadget.mk VARIANT_DIR=/variants variantuda
 
-B<product2:>
-Y:\epoc32\tools>imaker -f /epoc32/rom/config/ncp52/product2/image_conf_product2_ui.mk VARIANT_DIR=/variants variantuda 
+B<Tube:>
+Y:\epoc32\tools>imaker -f /epoc32/rom/config/ncp52/tube/image_conf_tube_ui.mk VARIANT_DIR=/variants variantuda 
 
 =item 4
 
-Flash the fpsx file generated under X:\epoc32\rombuild\product1\uda for Product 1 and Y:\epoc32\rombuild\product2\uda for Product 2 to your device.
+Flash the fpsx file generated under X:\epoc32\rombuild\gadget\uda for Gadget and Y:\epoc32\rombuild\tube\uda for Tube to your device.
+
+Note: More info on iMaker tool at: L<http://configurationtools.nmp.nokia.com/imaker/wiki/iMakerUserGuide>
 
 =back
 
