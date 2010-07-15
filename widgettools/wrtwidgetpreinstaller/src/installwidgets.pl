@@ -21,7 +21,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 # Version of the script - just use the date
-$main::VERSION = '25-May-2010';
+$main::VERSION = '22-June-2010';
 
 # New getopt::long provides this - but old version doesn't?
 sub version
@@ -554,13 +554,13 @@ sub installFiles
       if($isSharedLibrary)
       {
         #In case of NOKIA:sharedlibrary, the extracted widget contents and data source are stored under private\<uid>\..\lib\<sharedfoldername>\
-        $widgetdata->{'BasePath'} = sprintf('%s\\private\\%08x\\%s\\%s\\%s\\', $widgetdata->{'DriveName'}, $widget_uid, "widgets_21D_4C7","lib",$sharedFolderName);
-        $widgetdata->{'IconPath'} = sprintf('%s\\private\\%08x\\%s\\%s\\%s\\',$widgetdata->{'DriveName'}, $widget_uid, "data" ,"lib" ,$sharedFolderName);
+        $widgetdata->{'BasePath'} = sprintf('%s\\private\\%08X\\%s\\%s\\%s\\', $widgetdata->{'DriveName'}, $widget_uid, "widgets_21D_4C7","lib",$sharedFolderName);
+        $widgetdata->{'IconPath'} = sprintf('%s\\private\\%08X\\%s\\%s\\%s\\',$widgetdata->{'DriveName'}, $widget_uid, "data" ,"lib" ,$sharedFolderName);
       }
       else
       {
-        $widgetdata->{'BasePath'} = sprintf('%s\\private\\%08x\\%s\\%s\\', $widgetdata->{'DriveName'}, $widget_uid, "widgets_21D_4C7", hashpjw($widgetdata->{'BundleIdentifier'}));
-        $widgetdata->{'IconPath'} = sprintf('%s\\private\\%08x\\%s\\%s\\',$widgetdata->{'DriveName'}, $widget_uid, "data" , hashpjw($widgetdata->{'BundleIdentifier'}));
+        $widgetdata->{'BasePath'} = sprintf('%s\\private\\%08X\\%s\\%s\\', $widgetdata->{'DriveName'}, $widget_uid, "widgets_21D_4C7", hashpjw($widgetdata->{'BundleIdentifier'}));
+        $widgetdata->{'IconPath'} = sprintf('%s\\private\\%08X\\%s\\%s\\',$widgetdata->{'DriveName'}, $widget_uid, "data" , hashpjw($widgetdata->{'BundleIdentifier'}));
       }
       $widgetdata->{'MainHTML'} = "$widgetdata->{'BasePath'}$startsrc";
       $widgetdata->{'AllowNetworkAccess'} = 1;
@@ -599,7 +599,7 @@ sub installFiles
       # Find the next free UID to use
       $widgetdata->{'Uid'} = $self->findfreeUid($widgetdata);
       }
-    print sprintf("Using UID for midlet: 0x%08x\n", $widgetdata->{'Uid'}) if $self->{args}->{'verbose'};
+    print sprintf("Using UID for midlet: 0x%08X\n", $widgetdata->{'Uid'}) if $self->{args}->{'verbose'};
 
     # Make sure the destination exists
     my $dest = $self->regFileName($drive);
@@ -748,12 +748,12 @@ sub installFiles
             # NOKIA:sharedlibrary check
             if($isSharedWidget)
             {
-                $dataDir = fixFilename(catfile($self->destLocation($drive), 'Private', sprintf("%08X", $widget_uid),"data","lib",$sharedFolderName));
+                $dataDir = fixFilename(catfile($self->destLocation($drive), 'private', sprintf("%08X", $widget_uid),"data","lib",$sharedFolderName));
             }
             else
             {
-                #in case of WGT copy .mbm to \epoc32\winscw\C\Private\200267c0\data\hash<BundleId>\
-                $dataDir = fixFilename(catfile($self->destLocation($drive), 'Private', sprintf("%08X", $widget_uid),"data", $hashval));
+                #in case of WGT copy .mbm to \epoc32\winscw\C\private\200267c0\data\hash<BundleId>\
+                $dataDir = fixFilename(catfile($self->destLocation($drive), 'private', sprintf("%08X", $widget_uid),"data", $hashval));
             }
             mkpath $dataDir;
             $destFile = catfile($dataDir,$mbmName);
@@ -1109,7 +1109,7 @@ sub makeIni
         $uid = $self->{'freeuidwrtext'}++;   # Assign and then set next free UID
       }
     }
-  print sprintf(" Generated UID: hex->0x%08x dec->$uid\n \n",$uid);
+  print sprintf("Generated UID: hex->0x%08X dec->$uid\n \n",$uid);
   return $uid;
   }
 
@@ -1164,11 +1164,11 @@ sub installDir
 	}
     if($isSharedLibrary)
     {
-    	$result = catfile($self->destLocation($drive), 'Private', sprintf("%08X", $widget_uid),"widgets_21D_4C7", "lib",$sharedFolderName);
+    	$result = catfile($self->destLocation($drive), 'private', sprintf("%08X", $widget_uid),"widgets_21D_4C7", "lib",$sharedFolderName);
     }
     else
     {
-        $result = catfile($self->destLocation($drive), 'Private', sprintf("%08X", $widget_uid),"widgets_21D_4C7", $hashval);
+        $result = catfile($self->destLocation($drive), 'private', sprintf("%08X", $widget_uid),"widgets_21D_4C7", $hashval);
     }
   }
   else
@@ -1846,11 +1846,11 @@ sub makeSecSession
 
   if($isSharedLibrary)
   {
-      $secSession = fixFilename(catfile($self->destLocation($drive), 'Private', sprintf("%08X", $widget_uid),"data","lib",$sharedFolderName,"secsession"));
+      $secSession = fixFilename(catfile($self->destLocation($drive), 'private', sprintf("%08X", $widget_uid),"data","lib",$sharedFolderName,"secsession"));
   }
   else
   {
-      $secSession = fixFilename(catfile($self->destLocation($drive), 'Private', sprintf("%08X", $widget_uid),"data", $hashval,"secsession"));
+      $secSession = fixFilename(catfile($self->destLocation($drive), 'private', sprintf("%08X", $widget_uid),"data", $hashval,"secsession"));
   }
   print "\nGenerating: $secSession\n\n";
   
@@ -2096,17 +2096,15 @@ Drop the file under X:\variants\content\private\10282f06\WidgetEntryStore.xml
 
 Run the foll command to generate UDA
 
-B<Gadget:>
-X:\epoc32\tools>imaker -f /epoc32/rom/s60_makefiles/image_conf_sp_rnd_gadget.mk VARIANT_DIR=/variants variantuda
+B<product1:>
+X:\epoc32\tools>imaker -f /epoc32/rom/s60_makefiles/image_conf_sp_rnd_product1.mk VARIANT_DIR=/variants variantuda
 
-B<Tube:>
-Y:\epoc32\tools>imaker -f /epoc32/rom/config/ncp52/tube/image_conf_tube_ui.mk VARIANT_DIR=/variants variantuda 
+B<product2:>
+Y:\epoc32\tools>imaker -f /epoc32/rom/config/ncp52/product2/image_conf_product2_ui.mk VARIANT_DIR=/variants variantuda 
 
 =item 4
 
-Flash the fpsx file generated under X:\epoc32\rombuild\gadget\uda for Gadget and Y:\epoc32\rombuild\tube\uda for Tube to your device.
-
-Note: More info on iMaker tool at: L<http://configurationtools.nmp.nokia.com/imaker/wiki/iMakerUserGuide>
+Flash the fpsx file generated under X:\epoc32\rombuild\product1\uda for Product 1 and Y:\epoc32\rombuild\product2\uda for Product 2 to your device.
 
 =back
 
