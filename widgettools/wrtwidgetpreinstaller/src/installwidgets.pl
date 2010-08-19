@@ -21,7 +21,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 # Version of the script - just use the date
-$main::VERSION = '22-June-2010';
+$main::VERSION = '12-July-2010';
 
 # New getopt::long provides this - but old version doesn't?
 sub version
@@ -485,7 +485,7 @@ sub installFiles
 	  }
 
     if( $w3c_widget )
-      { 
+    { 
       if( $widgetdata->{'MainHTML'} )
         {
         $startsrc = $widgetdata->{'MainHTML'};
@@ -513,7 +513,7 @@ sub installFiles
       	}
       
       $widgetdata->{'MimeType'} = "application/widget";
-      }         
+    }         
 
     print "Identifier: $widgetdata->{'BundleIdentifier'}\n" if $self->{args}->{'verbose'};
     
@@ -1392,7 +1392,7 @@ sub parseConfXml
            
            if ( $atts{"name"} )
              {
-              $attributeMap = $attributeMap.$featureMap. KEY_ATTR_SEPERATOR."name".KEY_VALUE_SEPERATOR.$atts{"name"}.KEY_VALUE_PAIR_SEPERATOR;
+              $attributeMap = $attributeMap.$featureMap.KEY_ATTR_SEPERATOR."name".KEY_VALUE_SEPERATOR.$atts{"name"}.KEY_VALUE_PAIR_SEPERATOR;
               my $jilFeature = "http://jil.org/jil";
               if($atts{"name"}=~ m/^$jilFeature/i)
               {
@@ -1407,7 +1407,7 @@ sub parseConfXml
        elsif($el eq "param")
           {
               $featureParamMap = $featureMap. WIDGET_FEATURE_PARAM . $paramCount;
-              $attributeMap = $attributeMap.$featureParamMap. KEY_VALUE_SEPERATOR.KEY_VALUE_PAIR_SEPERATOR;
+              $attributeMap = $attributeMap.$featureParamMap.KEY_VALUE_SEPERATOR.KEY_VALUE_PAIR_SEPERATOR;
               if ($atts{"name"}) 
               {
                   $attributeMap = $attributeMap.$featureParamMap.KEY_ATTR_SEPERATOR."name".KEY_VALUE_SEPERATOR.$atts{"name"}.KEY_VALUE_PAIR_SEPERATOR;
@@ -1424,19 +1424,19 @@ sub parseConfXml
            
               if ( $atts{"network"} )
              {
-                $attributeMap = $attributeMap.$accessMap. KEY_ATTR_SEPERATOR."network".KEY_VALUE_SEPERATOR.$atts{"network"}.KEY_VALUE_PAIR_SEPERATOR;
+                $attributeMap = $attributeMap.$accessMap.KEY_ATTR_SEPERATOR."network".KEY_VALUE_SEPERATOR.$atts{"network"}.KEY_VALUE_PAIR_SEPERATOR;
              }
             if ( $atts{"remotescripts"} )
              {
-                $attributeMap = $attributeMap.$accessMap. KEY_ATTR_SEPERATOR."remotescripts".KEY_VALUE_SEPERATOR.$atts{"remotescripts"}.KEY_VALUE_PAIR_SEPERATOR;
+                $attributeMap = $attributeMap.$accessMap.KEY_ATTR_SEPERATOR."remotescripts".KEY_VALUE_SEPERATOR.$atts{"remotescripts"}.KEY_VALUE_PAIR_SEPERATOR;
              }
              if ( $atts{"localfs"} )
              {
-                $attributeMap = $attributeMap.$accessMap. KEY_ATTR_SEPERATOR."localfs".KEY_VALUE_SEPERATOR.$atts{"localfs"}.KEY_VALUE_PAIR_SEPERATOR;
+                $attributeMap = $attributeMap.$accessMap.KEY_ATTR_SEPERATOR."localfs".KEY_VALUE_SEPERATOR.$atts{"localfs"}.KEY_VALUE_PAIR_SEPERATOR;
              }
              if ( $atts{"origin"} )
              {
-                $attributeMap = $attributeMap.$accessMap. KEY_ATTR_SEPERATOR."origin".KEY_VALUE_SEPERATOR.$atts{"origin"}.KEY_VALUE_PAIR_SEPERATOR;
+                $attributeMap = $attributeMap.$accessMap.KEY_ATTR_SEPERATOR."origin".KEY_VALUE_SEPERATOR.$atts{"origin"}.KEY_VALUE_PAIR_SEPERATOR;
              }
              if ( $atts{"subdomains"} )
              {
@@ -1513,6 +1513,7 @@ sub docC{}
             if( lc($val) eq "true" )
             {
                 $isSharedWidget = 1;
+                $plisthash->{'WidgetPackagingFormat'} = "w3c-partial-v1";
             }
             $attributeMap = $attributeMap.WIDGET_NOKIA_SHAREDLIB_WIDGET.KEY_VALUE_SEPERATOR.$val.KEY_VALUE_PAIR_SEPERATOR;
         }
@@ -1643,7 +1644,7 @@ sub unregisterWidgets
           }
            #sharedFolderName TBD
           my $dir = $self->installDir($drive, $id);
-                rmtree $dir;
+          rmtree $dir;
                 
           print("BasePath:$basepath \nIs Non-Nokia? $non_nokia_widget		Is SharedLibrary? $isSharedLibrary \nDirectory:$dir \n");
     
@@ -2096,15 +2097,17 @@ Drop the file under X:\variants\content\private\10282f06\WidgetEntryStore.xml
 
 Run the foll command to generate UDA
 
-B<product1:>
-X:\epoc32\tools>imaker -f /epoc32/rom/s60_makefiles/image_conf_sp_rnd_product1.mk VARIANT_DIR=/variants variantuda
+B<Gadget:>
+X:\epoc32\tools>imaker -f /epoc32/rom/s60_makefiles/image_conf_sp_rnd_gadget.mk VARIANT_DIR=/variants variantuda
 
-B<product2:>
-Y:\epoc32\tools>imaker -f /epoc32/rom/config/ncp52/product2/image_conf_product2_ui.mk VARIANT_DIR=/variants variantuda 
+B<Tube:>
+Y:\epoc32\tools>imaker -f /epoc32/rom/config/ncp52/tube/image_conf_tube_ui.mk VARIANT_DIR=/variants variantuda 
 
 =item 4
 
-Flash the fpsx file generated under X:\epoc32\rombuild\product1\uda for Product 1 and Y:\epoc32\rombuild\product2\uda for Product 2 to your device.
+Flash the fpsx file generated under X:\epoc32\rombuild\gadget\uda for Gadget and Y:\epoc32\rombuild\tube\uda for Tube to your device.
+
+Note: More info on iMaker tool at: L<http://configurationtools.nmp.nokia.com/imaker/wiki/iMakerUserGuide>
 
 =back
 
