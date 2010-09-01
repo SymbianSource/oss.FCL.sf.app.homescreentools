@@ -1,0 +1,90 @@
+	<!-- ****************************** -->
+	<!-- XML2ODT Convertor Build Script -->
+	<!-- ****************************** -->
+
+	<project name="build" default="all" basedir=".">
+
+	<!-- Build properties -->
+	<property name="src" location="${basedir}/src" />
+	<property name="lib" location="${basedir}/lib" />
+	<property name="build" location="${basedir}/bin" />
+	
+
+	<!-- Compilation classpath -->
+	<path id="build.classpath">
+		<pathelement path="${build}" />
+		<fileset dir="${lib}/batik">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${lib}/icu">
+			<include name="*.jar"/>
+		</fileset>
+		<fileset dir="${lib}/xerces">
+			<include name="*.jar"/>
+		</fileset><fileset dir="${lib}/xml-apis-ext">
+			<include name="*.jar"/>
+		</fileset>		
+		
+	</path>
+
+	<!-- Init the build -->
+	<target name="init">
+		<echo>The XML2ODT Tool Build is started............ </echo>
+		<delete dir="${build}" failonerror="false"/>
+		<delete dir="${build}/package" failonerror="false"/>
+
+		<mkdir dir="${build}" />
+	</target>
+
+	<!-- Compile the component -->
+	<target name="compile" depends="init">
+		<javac destdir="${build}" debug="yes">
+			<classpath refid="build.classpath" />
+			<src path="${src}" />
+		</javac>
+	</target>
+
+	<!-- Compile the tests -->
+	<!--<target name="compiletests" depends="compile">
+		<javac destdir="${build}" debug="yes">
+			<classpath refid="build.classpath" />
+			<src path="${unittests}" />
+			<src path="${moduletests}" />
+		</javac>
+	</target>-->
+
+	<target name="makeApp" depends="compile">
+		<jar destfile="${build}/ThemeInstaller.jar" 
+			basedir="${build}"/>
+		<mkdir dir="${build}/package/ThemeInstaller/data" />
+		<mkdir dir="${build}/package/ThemeInstaller/lib" />
+		<mkdir dir="${build}/package/ThemeInstaller/doc" />
+		<mkdir dir="${build}/package/ThemeInstaller/scripts" />		
+		<copy todir="${build}/package/ThemeInstaller/data" >
+			<fileset dir="${basedir}/data"/>
+		</copy>
+		<copy todir="${build}/package/ThemeInstaller/lib">
+			<fileset dir="${basedir}/lib"/>
+		</copy>
+		<copy todir="${build}/package/ThemeInstaller/doc" >
+			<fileset dir="${basedir}/doc"/>
+
+		</copy>
+		<copy todir="${build}/package/ThemeInstaller/scripts" >
+			<fileset dir="${basedir}/scripts"/>
+		</copy>
+		
+		<copy file="${basedir}/scripts/ThemeInstaller.bat" todir="${build}/package/ThemeInstaller"/>
+		<copy file="${build}/ThemeInstaller.jar" todir="${build}/package/ThemeInstaller"/>
+		<zip destfile="${basedir}/ThemeInstaller.zip" basedir="${build}/package"/>
+
+	</target>
+
+	<target name="all" depends="clean"/>
+
+	<!-- Delete the directories -->
+	<target name="clean" depends="makeApp">
+		<delete dir="${build}" />
+	</target>
+
+</project>

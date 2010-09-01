@@ -1,0 +1,8 @@
+# Meta information for widget file generation
+#
+# Copyright (c) 2008 Nokia Corporation.  All rights reserved.
+#
+
+platform	win32
+makefile 	gnumake
+techstream	tools
