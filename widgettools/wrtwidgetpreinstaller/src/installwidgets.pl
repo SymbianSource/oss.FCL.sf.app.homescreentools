@@ -21,7 +21,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 # Version of the script - just use the date
-$main::VERSION = '12-July-2010';
+$main::VERSION = '02-August-2010';
 
 # New getopt::long provides this - but old version doesn't?
 sub version
@@ -105,6 +105,7 @@ use constant WIDGET_UI_UID => 0x10282822;   # UID of the widget app
 use constant CWRT_WIDGET_UI_UID => 0x200267C0;    # UID of the cwrt widget app
 use constant SWIDGET_UI_UID => 0x102829A0;	# UID of the securewidget app
 use constant CWRT_WIDGET_UI_NON_NOKIA_UID => 0x200267D6;    # UID of the cwrt widget app
+use constant JIL_NS => 'http://www.jil.org/ns/widgets1.2';
 
 # Folder paths
 use constant DESTINATION => 'private/10003a3f/import/apps/NonNative/Resource';
@@ -413,7 +414,7 @@ sub installFiles
   # Unregister any existing widgets as otherwise when the registry is rewritten their icons will appear in the emulator but they won't work
   $self->unregisterWidgets($drive);
 
-  print "\n			INSTALLING FILES FOR DRIVE $drive				\n"; 
+  print "\n     INSTALLING FILES FOR DRIVE $drive       \n";
   # Process each widget in turn
   my ( @installedProps );
   my ( @installedCWRTProps );
@@ -446,14 +447,14 @@ sub installFiles
     die "No files extracted from $filename" if !@$extracted;
     
     if ($self->{'operator'}{lc $filename})
-		{
-    	print "\n NON NOKIA WGT \n";
-    	$non_nokia_widget = 1;
+    {
+      print "\nNON NOKIA WGT \n";
+      $non_nokia_widget = 1;
     }
     else
     {
-    	print "\n NOKIA WGT \n";
-    	$non_nokia_widget = 0;
+      print "\nNOKIA WGT \n";
+      $non_nokia_widget = 0;
     }
     
     
@@ -467,8 +468,8 @@ sub installFiles
       }
     elsif (($filename =~ /.wgt/ ) && ( my $confxml = catfile($tempdir, $root, 'config.xml')))
       {
-        print (" W3C widget \n"); 
-      
+        print ("W3C widget \n");
+
           # Parse the XML file into a hash
             $widgetdata = parseConfXml($confxml,$self->{'args'}->{'l10n'});
             $w3c_widget = 1;
@@ -660,8 +661,8 @@ sub installFiles
     my $mbm;
     
     print("\nIs shared library - $isSharedLibrary \nIs sharedlib widget - $isSharedWidget \nIs Secure WGZ - $self->{'secure'}{lc $filename}\n");
-    
-		if( ((!$isSharedLibrary) || ($isSharedLibrary && $isSharedWidget)) && (!$self->{'secure'}{lc $filename}))
+
+    if( ((!$isSharedLibrary) || ($isSharedLibrary && $isSharedIcon)) && (!$self->{'secure'}{lc $filename}))
     {
     	  print "Creating mbm !!!\n";
         die "ERROR: Can't find PNG2MBM command in PATH." if !(my $cmd = findCmd('png2mbm.exe'));
@@ -726,7 +727,7 @@ sub installFiles
     # Copy the MBM file into the widget install directory
     # because native installation does and uses it after
     # installation to manage UID consistency.
-    if( (!$isSharedLibrary) || ($isSharedLibrary && $isSharedWidget))
+    if( (!$isSharedLibrary) || ($isSharedLibrary && $isSharedIcon))
     {
         my $mbmName = sprintf("[%08x].mbm", $widgetdata->{'Uid'});
         my $destFile;
@@ -809,7 +810,7 @@ sub installFiles
   $self->addToRomList($drive, $self->makeRegistry($drive, \@installedCWRTProps, 1));
     
 
-  print "\n\n %%%%%          WIDGET PRE-INSTALLATION completed for Drive $drive          %%%%% \n\n";
+  print "\n\n%%%%%          WIDGET PRE-INSTALLATION completed for Drive $drive          %%%%% \n\n";
   }
 
 sub un7zipWidget
@@ -1340,6 +1341,11 @@ sub parseConfXml
     
     if($el eq "widget")
         {
+         my $jilFeature = JIL_NS;
+         if( lc($atts{"xmlns:JIL"})=~ m/$jilFeature/i || lc($atts{"xmlns:jil"})=~ m/$jilFeature/i)
+         {
+           $plisthash->{'WidgetPackagingFormat'} = "jil";
+         }
          if ( $atts{"id"} )
              {
             $plisthash->{'BundleIdentifier'} = $atts{"id"};
@@ -1417,7 +1423,7 @@ sub parseConfXml
                   $attributeMap = $attributeMap.$featureParamMap.KEY_ATTR_SEPERATOR."value".KEY_VALUE_SEPERATOR.$atts{"value"}.KEY_VALUE_PAIR_SEPERATOR;
               }
           }
-       elsif ($el eq "access" || $el eq "jil:access")
+       elsif ($el eq "access" || $el eq "jil:access" || $el eq "JIL:access")
           {
               $accessMap = WIDGET_ACCESS . $accessCount;
               $attributeMap = $attributeMap.$accessMap.KEY_VALUE_SEPERATOR.KEY_VALUE_PAIR_SEPERATOR;
@@ -1586,8 +1592,8 @@ sub unregisterWidgets
   # This should avoid problems with unregistered widget icons in the emulator?
     if (-e $registry)
     {
-        print("\n			UNREGISTERING WGZ WIDGETS       \n");
-        
+        print("\n     UNREGISTERING WGZ WIDGETS       \n");
+
       my $ref = XMLin($registry, 'forcearray' => [ 'entry' ], 'keyattr' => { 'prop' => 'content' } );
     foreach my $entry ( @{ $ref->{entry} } )
       {
@@ -1613,8 +1619,8 @@ sub unregisterWidgets
   # This should avoid problems with unregistered widget icons in the emulator?
   if (-e $registry)
     {
-        print("\n			UNREGISTERING WGT WIDGETS       \n");
-        
+        print("\n     UNREGISTERING WGT WIDGETS       \n");
+
           my $ref = XMLin($registry, 'forcearray' => [ 'entry' ], 'keyattr' => { 'prop' => 'content' } );
         foreach my $entry ( @{ $ref->{entry} } )
       {
@@ -1628,7 +1634,7 @@ sub unregisterWidgets
        
           # We also have to delete the widget directory otherwise it'll be re-registered
           my $id = $entry->{prop}->{BundleIdentifier}->{val}->{content};
-          print " Unregistering $id ";
+          print "Unregistering $id\n";
           my $basepath = $entry->{prop}->{BasePath}->{val}->{content};
           $w3c_widget = 1;
           my $sharedLib = "lib";          #BasePath will have lib only if the widget is shared Library
@@ -1645,10 +1651,8 @@ sub unregisterWidgets
            #sharedFolderName TBD
           my $dir = $self->installDir($drive, $id);
           rmtree $dir;
-                
-          print("BasePath:$basepath \nIs Non-Nokia? $non_nokia_widget		Is SharedLibrary? $isSharedLibrary \nDirectory:$dir \n");
-    
-            $dir =~ s/widgets_21D_4C7/data/;
+
+          $dir =~ s/widgets_21D_4C7/data/;
           rmtree $dir;
         }
     }
@@ -1791,7 +1795,6 @@ sub dumpPList
     }
     }
   print $fh "</entry>\n";
-  print "\n Is a w3c widget? -- $w3c\n";
   if( $w3c )
     {
   my $dbPath = fixFilename(catfile($self->destLocation('C'), CWRT_WEBAPP_REGISTRY));
@@ -1801,12 +1804,12 @@ sub dumpPList
     
     if($encodeddata->{'AttributeList'})
     {
-        print "\n AttributeList argument sent to DB\n";
+        print "\nAttributeList argument sent to DB\n";
         $regCmd = "$cmd $dbPath $encodeddata->{'BundleIdentifier'} $encodeddata->{'Uid'} $encodeddata->{'BundleDisplayName'} $encodeddata->{'BasePath'} $encodeddata->{'DBIconPath'} $encodeddata->{'WidgetPackagingFormat'} $encodeddata->{'MainHTML'} $encodeddata->{'AttributeList'}";
     }
     else
    {
-        print "\n AttributeList argument not sent to DB\n";
+        print "\nAttributeList argument not sent to DB\n";
         $regCmd = "$cmd $dbPath $encodeddata->{'BundleIdentifier'} $encodeddata->{'Uid'} $encodeddata->{'BundleDisplayName'} $encodeddata->{'BasePath'} $encodeddata->{'DBIconPath'} $encodeddata->{'WidgetPackagingFormat'} $encodeddata->{'MainHTML'}";
     }
     print "\n regCmd : $regCmd \n\n";
