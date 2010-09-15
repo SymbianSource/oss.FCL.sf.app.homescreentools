@@ -21,7 +21,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 # Version of the script - just use the date
-$main::VERSION = '02-August-2010';
+$main::VERSION = '26-August-2010';
 
 # New getopt::long provides this - but old version doesn't?
 sub version
@@ -136,7 +136,7 @@ use constant KEY_ATTR_SEPERATOR => ':';
 our $w3c_widget = 0 ;
 our $hashval;
 our $non_nokia_widget = 0;
-our ($isSharedLibrary, $sharedFolderName ,$isSharedWidget, $isSharedIcon)= (0,'',0,0);
+our ($isSharedLibrary, $sharedFolderName ,$isSharedWidget, $isSharedIcon, $isHiddenIcon)= (0,'',0,0,0);
 our (@staticUidWrtIntList,@staticUidCwrtIntList,@staticUidWrtExtList,@staticUidCwrtExtList) = ({},{},{},{});
 our $isSecureWidget = 0;
 
@@ -408,6 +408,7 @@ sub installFiles
    $isSharedIcon = 0;
    $sharedFolderName ='';
    $isSecureWidget = 0;
+   $isHiddenIcon = 0;
     
   print "Installing files for drive $drive\n" if $self->{'args'}->{'verbose'};
 
@@ -442,19 +443,20 @@ sub installFiles
         $isSharedWidget = 0;
         $isSharedIcon = 0;
         $sharedFolderName ='';
+        $isHiddenIcon = 0;
     
     my ( $root, $extracted, $size ) = $self->getFiles($tempdir);
     die "No files extracted from $filename" if !@$extracted;
     
     if ($self->{'operator'}{lc $filename})
-    {
+		{
       print "\nNON NOKIA WGT \n";
-      $non_nokia_widget = 1;
+    	$non_nokia_widget = 1;
     }
     else
     {
       print "\nNOKIA WGT \n";
-      $non_nokia_widget = 0;
+    	$non_nokia_widget = 0;
     }
     
     
@@ -469,7 +471,7 @@ sub installFiles
     elsif (($filename =~ /.wgt/ ) && ( my $confxml = catfile($tempdir, $root, 'config.xml')))
       {
         print ("W3C widget \n");
-
+      
           # Parse the XML file into a hash
             $widgetdata = parseConfXml($confxml,$self->{'args'}->{'l10n'});
             $w3c_widget = 1;
@@ -661,8 +663,8 @@ sub installFiles
     my $mbm;
     
     print("\nIs shared library - $isSharedLibrary \nIs sharedlib widget - $isSharedWidget \nIs Secure WGZ - $self->{'secure'}{lc $filename}\n");
-
-    if( ((!$isSharedLibrary) || ($isSharedLibrary && $isSharedIcon)) && (!$self->{'secure'}{lc $filename}))
+    
+		if( ((!$isSharedLibrary) || ($isSharedLibrary && $isSharedWidget)) && (!$self->{'secure'}{lc $filename}))
     {
     	  print "Creating mbm !!!\n";
         die "ERROR: Can't find PNG2MBM command in PATH." if !(my $cmd = findCmd('png2mbm.exe'));
@@ -727,7 +729,7 @@ sub installFiles
     # Copy the MBM file into the widget install directory
     # because native installation does and uses it after
     # installation to manage UID consistency.
-    if( (!$isSharedLibrary) || ($isSharedLibrary && $isSharedIcon))
+    if( (!$isSharedLibrary) || ($isSharedLibrary && $isSharedWidget))
     {
         my $mbmName = sprintf("[%08x].mbm", $widgetdata->{'Uid'});
         my $destFile;
@@ -984,6 +986,9 @@ sub findCmd
 # Make INI file describing widget - this is passed to widgetregfiles.exe
 sub makeIni
   {
+  my $hidden = 0;
+  if ($isSharedWidget && !$isSharedIcon) {$hidden = 1;}
+  if ($isHiddenIcon) {$hidden = 1;}
   my ( $self, $data, $file ) = @_;
   open INI, ">$file" or die "Failed to open $file for writing: $!";
   binmode INI, ":utf8" if $] >= 5.008;
@@ -997,6 +1002,7 @@ sub makeIni
   print INI "caption=$data->{'BundleDisplayName'}\n";
   print INI "drive_name=$data->{'DriveName'}\n";
   print INI "results_dir=$dir\n";
+  print INI "hidden=$hidden\n";
   
   if( $w3c_widget )
   {
@@ -1532,6 +1538,15 @@ sub docC{}
             }
             $attributeMap = $attributeMap.WIDGET_NOKIA_SHAREDLIB_ICON.KEY_VALUE_SEPERATOR.$val.KEY_VALUE_PAIR_SEPERATOR;
         }
+    elsif ($el eq "NOKIAEX:hideicon")
+        {
+            chomp($val);
+            if( lc($val) eq "true" )
+            {
+                $isHiddenIcon = 1;
+                print "Found NOKIAEX:hideicon == true";
+            }
+        }
     $val = ''
     }
 
@@ -1593,7 +1608,7 @@ sub unregisterWidgets
     if (-e $registry)
     {
         print("\n     UNREGISTERING WGZ WIDGETS       \n");
-
+        
       my $ref = XMLin($registry, 'forcearray' => [ 'entry' ], 'keyattr' => { 'prop' => 'content' } );
     foreach my $entry ( @{ $ref->{entry} } )
       {
@@ -1620,7 +1635,7 @@ sub unregisterWidgets
   if (-e $registry)
     {
         print("\n     UNREGISTERING WGT WIDGETS       \n");
-
+        
           my $ref = XMLin($registry, 'forcearray' => [ 'entry' ], 'keyattr' => { 'prop' => 'content' } );
         foreach my $entry ( @{ $ref->{entry} } )
       {
@@ -1651,8 +1666,8 @@ sub unregisterWidgets
            #sharedFolderName TBD
           my $dir = $self->installDir($drive, $id);
           rmtree $dir;
-
-          $dir =~ s/widgets_21D_4C7/data/;
+    
+            $dir =~ s/widgets_21D_4C7/data/;
           rmtree $dir;
         }
     }
