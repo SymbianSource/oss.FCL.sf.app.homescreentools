@@ -15,14 +15,14 @@
 #
 # dtdinstaller's actual configuration export makefile
 
-MAKEFILE =	$(EPOCROOT)/sf/app/homescreentools/dtdinstaller/config/export.mk
+MAKEFILE =	/sf/app/homescreentools/dtdinstaller/config/export.mk
 $(call push,MAKEFILE_STACK,$(MAKEFILE))
 
-DTDINSTALLERFILES =	$(MAKEFILEDIR)../bin/dtd_installer.pl					${EPOCROOT}/epoc32/tools/ \
-			$(MAKEFILEDIR)../bin/convert_file.pm					${EPOCROOT}/epoc32/tools/ \
-			$(MAKEFILEDIR)../bin/dtd.meta						${EPOCROOT}/epoc32/tools/makefile_templates/tools/ \
-			$(MAKEFILEDIR)../bin/dtd.mk						${EPOCROOT}/epoc32/tools/makefile_templates/tools/
- 
+DTDINSTALLERFILES =	$(MAKEFILEDIR)../bin/dtd_installer.pl													/epoc32/tools/ \
+													$(MAKEFILEDIR)../bin/convert_file.pm										/epoc32/tools/ \
+													$(MAKEFILEDIR)../bin/dtd.meta														/epoc32/tools/makefile_templates/tools/ \
+													$(MAKEFILEDIR)../bin/dtd.mk															/epoc32/tools/makefile_templates/tools/
+
 dtdinstaller_config								:: dtdinstaller_config-dtdinstaller 
 dtdinstaller_config-dtdinstaller	::
 
